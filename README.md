@@ -28,10 +28,6 @@ You need a certificate file to authenticate with CANFAR (and other CADC services
 cadc-get-cert -u <USERNAME>
 ```
 
-### Test dataset
-
-TBA
-
 ## Build
 
 We use Docker to build images that run on CANFAR. In this project we have developed a modified SoFiA-2 container with `psutil` and `psrecord` for profiling the execution of SoFiA-2. All scripts requried for this are found in the `image` subdirectory.
@@ -54,15 +50,23 @@ Select the image `sofia-task` checkbox, and then under actions click "Add Labels
 Before attempting to deploy the test make sure you are authenticated (`cadc-get-cert`).
 
 1. Copy over dataset
-2. Update `sofia.par`
+2. Run `python3 submit.py config.ini`
 
-### Download test dataset
+### Download task dataset
 
 This test dataset is provided by the SoFiA-2 team. Follow the steps to download it locally and then update the configuration file to select this dataset.
 
 ```
 wget https://gitlab.com/SoFiA-Admin/SoFiA-2/-/wikis/documents/sofia_test_datacube.tar.gz
 tar -xvf sofia_test_datacube.tar.gz
+```
+
+### Configure task
+
+The `submit.py` script copies the required files from your local filesystem to the VO space (VOS) where they are accessible by CANFAR containers. You will need to create and/or update the `config.ini` file with your desired filenames and inputs for this task. We will automatically generate the executable file that runs `sofia` monitored by a `psrecord` process. The profile log output is automatically downloaded from VOS.
+
+```
+python3 submit.py config.ini
 ```
 
 ## CANFAR
