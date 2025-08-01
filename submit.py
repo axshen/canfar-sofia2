@@ -172,6 +172,14 @@ def main():
     }
     submit_job(params, interval=1)
 
+    # Fetch log file
+    logging.info('Downloading profile log file')
+    profile_log = config['profile_log']
+    dest_log_file = os.path.join(vos_dir, profile_log)
+    client.copy(vos_path(dest_log_file), profile_log)
+    logging.info('Done')
+    return
+
 
 if __name__ == '__main__':
     main()

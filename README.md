@@ -47,6 +47,8 @@ To tag the image as headless head to the Harbor srcnet repository page: https://
 
 Select the image `sofia-task` checkbox, and then under actions click "Add Labels" and then "headless". You should see the table entry update and the headless tag will appear on under the "Labels" column. Now you will be able to submit this job.
 
+**NOTE**: If you rebuild and push an image again you will have to re-tag the container as headless.
+
 ## Deploy
 
 Before attempting to deploy the test make sure you are authenticated (`cadc-get-cert`).

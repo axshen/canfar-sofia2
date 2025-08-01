@@ -9,7 +9,7 @@ RUN apt-get update && \
 RUN git clone https://gitlab.com/SoFiA-Admin/SoFiA-2.git
 RUN cd SoFiA-2 && \
     ./compile.sh -fopenmp && \
-    ln -s /app/sofia /usr/bin/sofia
+    ln -s /app/SoFiA-2/sofia /usr/bin/sofia
 
 # Install profiling tools
 COPY requirements.txt .
