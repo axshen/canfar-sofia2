@@ -50,7 +50,8 @@ Select the image `sofia-task` checkbox, and then under actions click "Add Labels
 Before attempting to deploy the test make sure you are authenticated (`cadc-get-cert`).
 
 1. Copy over dataset
-2. Run `python3 submit.py config.ini`
+2. Configure
+3. Run `python3 submit.py config.ini`
 
 ### Download task dataset
 
@@ -63,7 +64,19 @@ tar -xvf sofia_test_datacube.tar.gz
 
 ### Configure task
 
-The `submit.py` script copies the required files from your local filesystem to the VO space (VOS) where they are accessible by CANFAR containers. You will need to create and/or update the `config.ini` file with your desired filenames and inputs for this task. We will automatically generate the executable file that runs `sofia` monitored by a `psrecord` process. The profile log output is automatically downloaded from VOS.
+Create or update the `config.ini` file with inputs for this task. A description of the required parameters is provided below
+
+| Parameter | Description |
+| --- | --- |
+| `vos_dir` | Working directory in the VO space (file system that is accessible by the CANFAR containers) |
+| `parameter_file` | SoFiA-2 parameter file to be used in the tests. A suitable default can be downloaded as part of the test dataset that is downloaded above. |
+| `image_file` | Local copy of the image cube FITS file that will be copied to the VO storage space and processed as part of these tests |
+| `profile_log` | Output plaintext file that will contain the `psrecord` profiling information. |
+| `cmd_file` | Filename of the bash file containing the command that will be run inside the CANFAR container. |
+
+Note that when a local file does not exist in the current directory (e.g. `/mnt/shared/data/test.fits`) the base filename will be used when copying the data over to the VO storage space.
+
+The `submit.py` script copies the required files from your local filesystem to the VO space (VOS) where they are accessible by CANFAR containers. We will automatically generate the executable file that runs `sofia` monitored by a `psrecord` process. The profile log output is automatically downloaded from VOS.
 
 ```
 python3 submit.py config.ini
