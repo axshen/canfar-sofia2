@@ -4,25 +4,18 @@ A SRCNet Workload task for running [SoFiA-2](https://gitlab.com/SoFiA-Admin/SoFi
 
 ## Setup environment
 
-You will need a bunch of accounts and the correct permissions to run headless tasks on CANFAR. This section describes all of the steps to set up your environment.
+These tests currently run on the [Canadian CANFAR instance](https://www.canfar.net/en/). You will need to create an account and request access to certain services to run these tests. This section describes all of the steps to set up your environment.
 
 * Request a CADC account: https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/auth/request.html
+* Request permissions to access the group and to run headless containers by emailing: support@canfar.net
 * Install local Python dependencies and utils (`pip install -r requirements.txt`)
 * Download the test dataset to the `/arc` storage space
 
-### CADC account
-
-TBA
-
-### Install libraries
-
-```
-pip install -r requirements.txt
-```
+There is some documentation to help with running headless containers on CANFAR: https://www.opencadc.org/science-containers/complete/headless/.
 
 ### Authenticate
 
-You need a certificate file to authenticate with CANFAR (and other CADC services)
+Once you have a CADC account and have installed local Python libraries you can download a certificate file locally, which is used to authenticate with CANFAR:
 
 ```
 cadc-get-cert -u <USERNAME>
