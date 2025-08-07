@@ -7,7 +7,7 @@ A SRCNet Workload task for running [SoFiA-2](https://gitlab.com/SoFiA-Admin/SoFi
 These tests currently run on the [Canadian CANFAR instance](https://www.canfar.net/en/). You will need to create an account and request access to certain services to run these tests. This section describes all of the steps to set up your environment.
 
 * Request a CADC account: https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/auth/request.html
-* Request permissions to access the group and to run headless containers by emailing: support@canfar.net
+* Request permissions to access the group (TBA) and to run headless containers by emailing: support@canfar.net
 * Install local Python dependencies and utils (`pip install -r requirements.txt`)
 * Download the test dataset to the `/arc` storage space
 
@@ -44,7 +44,7 @@ Before attempting to deploy the test make sure you are authenticated (`cadc-get-
 
 1. Copy over dataset
 2. Configure
-3. Run `python3 submit.py config.ini`
+3. Run `python3 task.py config.ini`
 
 ### Download task dataset
 
@@ -69,11 +69,15 @@ Create or update the `config.ini` file with inputs for this task. A description 
 
 Note that when a local file does not exist in the current directory (e.g. `/mnt/shared/data/test.fits`) the base filename will be used when copying the data over to the VO storage space.
 
-The `submit.py` script copies the required files from your local filesystem to the VO space (VOS) where they are accessible by CANFAR containers. We will automatically generate the executable file that runs `sofia` monitored by a `psrecord` process. The profile log output is automatically downloaded from VOS.
+The `task.py` script copies the required files from your local filesystem to the VO space (VOS) where they are accessible by CANFAR containers. We will automatically generate the executable file that runs `sofia` monitored by a `psrecord` process. The profile log output is automatically downloaded from VOS.
 
 ```
-python3 submit.py config.ini
+python3 task.py config.ini
 ```
+
+### Parallel
+
+https://gitlab.com/SoFiA-Admin/s2p_setup
 
 ## CANFAR
 

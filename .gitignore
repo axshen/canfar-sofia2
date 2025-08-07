@@ -1,5 +1,7 @@
+.DS_Store
 scaling
 reference_output
+parameter_files
 sofia_test_datacube*
 run.sh
 sofia_profile.txt
