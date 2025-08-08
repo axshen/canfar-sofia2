@@ -14,35 +14,35 @@ FAILED_STATES = ['Failed']
 SOFIA_TASK_IMAGE = 'images.canfar.net/srcnet/sofia-task:latest'
 
 
-def submit_job(params, interval=10):
+def submit_job(params, logger=None, interval=10):
     """Job wrapper for CANFAR containers. Blocks program until the completion of the headless
     container. Logs container stdout to terminal.
 
     """
     completed = False
-    session_id = create_canfar_session(params).strip('\n')
-    logging.info(f'Session: {session_id}')
+    session_id = create_canfar_session(params, logger).strip('\n')
+    logger.info(f'Session: {session_id}')
     while not completed:
-        res = info_canfar_session(session_id, logs=False)
+        res = info_canfar_session(session_id, logger=logger, logs=False)
         try:
             status = json.loads(res.text)['status']
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
             continue
 
         completed = status in COMPLETE_STATES
         failed = status in FAILED_STATES
         if failed:
             logs = info_canfar_session(session_id, logs=True)
-            logging.error(logs.content)
+            logger.error(logs.content)
             raise Exception(f'Job failed {logs.text}')
 
         time.sleep(interval)
-        logging.info(f'Job {session_id} {status}')
+        logger.info(f'Job {session_id} {status}')
 
     # Logging to stdout
     res = info_canfar_session(session_id, logs=True)
-    logging.info(res.text)
+    logger.info(res.text)
     return
 
 
@@ -60,20 +60,20 @@ def canfar_get_images(type='headless'):
     return json.loads(r.text)
 
 
-def create_canfar_session(params):
+def create_canfar_session(params, logger):
     r = requests.post(CANFAR_SESSION_URL, data=params, cert=CADC_CERTIFICATE)
     if r.status_code != 200:
-        logging.error(r.status_code)
+        logger.error(r.status_code)
         raise Exception(f'Request failed {r.content}')
     return r.content.decode('utf-8')
 
 
-def info_canfar_session(id, logs=False):
+def info_canfar_session(id, logger, logs=False):
     url = f'{CANFAR_SESSION_URL}/{id}'
     if logs:
         url = f'{url}?view=logs'
     r = requests.get(url, cert=CADC_CERTIFICATE)
     if r.status_code != 200:
-        logging.error(r.status_code)
-        logging.error(r.content)
+        logger.error(r.status_code)
+        logger.error(r.content)
     return r
