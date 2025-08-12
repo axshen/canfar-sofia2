@@ -77,7 +77,26 @@ python3 task.py config.ini
 
 ### Parallel
 
-https://gitlab.com/SoFiA-Admin/s2p_setup
+Provided is a script to run SoFiA-2 in parallel using CANFAR. We will split the execution of the entire data cube into smaller sub-regions, each of which will be processed by a separate headless container. The user is responsible for creating the parameter files for this and placing them on your local machine. We assume the image cube is already available on VO space storage. A description of the configuration required is below
+
+| Parameter | Description |
+| --- | --- |
+| `vos_dir` | Working directory in the VO space (file system that is accessible by the CANFAR containers) |
+| `image_file` | Location of the image cube on the VO space. Note that we will not be copying the file over because it is expected that if running in parallel that it will be a large file |
+| `parameter_file_dir` | Directory containing all of the parameter files that will be run. |
+| `logs_dir` | Directory where the log files (psrecord output) will be copied to on the local directory. |
+
+To run it:
+
+```
+python3 parallel.py config.ini
+```
+
+This will produce a list of `psrecord` output files in your specified log directory. We have also included a script `aggregate_logs.py` that will summarise the content of your log files and print to console the runtime, %CPU and total CPU-hours of your separate headless container runs, as well as the total resource requirement of the parallelised SoFiA-2 run. You can run this script with
+
+```
+python3 aggregate_logs.py <logs_directory>
+```
 
 ## CANFAR
 

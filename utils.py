@@ -23,7 +23,7 @@ def submit_job(params, logger=None, interval=10):
     session_id = create_canfar_session(params, logger).strip('\n')
     logger.info(f'Session: {session_id}')
     while not completed:
-        res = info_canfar_session(session_id, logger=logger, logs=False)
+        res = info_canfar_session(session_id, logger, logs=False)
         try:
             status = json.loads(res.text)['status']
         except Exception as e:
@@ -33,7 +33,7 @@ def submit_job(params, logger=None, interval=10):
         completed = status in COMPLETE_STATES
         failed = status in FAILED_STATES
         if failed:
-            logs = info_canfar_session(session_id, logs=True)
+            logs = info_canfar_session(session_id, logger, logs=True)
             logger.error(logs.content)
             raise Exception(f'Job failed {logs.text}')
 
@@ -41,7 +41,7 @@ def submit_job(params, logger=None, interval=10):
         logger.info(f'Job {session_id} {status}')
 
     # Logging to stdout
-    res = info_canfar_session(session_id, logs=True)
+    res = info_canfar_session(session_id, logger, logs=True)
     logger.info(res.text)
     return
 

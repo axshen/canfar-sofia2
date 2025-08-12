@@ -77,32 +77,32 @@ def main():
         run_id = os.path.splitext(basename)[0]
         f_dest = os.path.join(vos_dir, basename)
         run_dict[run_id] = {
-            'parameter_file_template': f,
             'parameter_file': f_dest
         }
-        # client.copy(f, vos_path(f_dest))
+        client.copy(f, vos_path(f_dest))
 
-    # Update run_dict
+    # Update run_dict and copy cmd files
     logger.info('Creating scripts to run in each container')
     for run_id, run_config in run_dict.items():
         parameter_file = run_config['parameter_file']
-        dirname = os.path.dirname(run_config['parameter_file_template'])
-        profile_log = os.path.join(vos_dir, f'{run_id}_profile.txt')
+        profile_log = os.path.join(vos_dir, f'{run_id}_profile.csv')
         run_config['profile_log'] = profile_log
-        sofia_cmd = f'sofia {parameter_file} input.data={image_file} output.directory={vos_dir}'
+        sofia_cmd = f'sofia {parameter_file} input.data={image_file} output.directory={os.path.join(vos_dir, run_id)}'
 
-        cmd_file = os.path.join(dirname, f'{run_id}_cmd.sh')
+        cmd_file = os.path.join(config["parameter_file_dir"], f'{run_id}_cmd.sh')
         cmd_file_dest = os.path.join(vos_dir, f'{run_id}_cmd.sh')
         with open(cmd_file, 'w') as f:
             f.write('#!/bin/bash\n')
-            f.write(f'psrecord "{sofia_cmd}" --log {profile_log} --include-io --interval 0.1 --include-children\n')
-
-        logger.info(f'Copying command file {cmd_file} to VO space')
-        # client.copy(cmd_file, vos_path(cmd_file_dest))
+            f.write(f'psrecord "{sofia_cmd}" --log {profile_log} --include-io --interval 0.2 --include-children --log-format csv\n')
+        client.copy(cmd_file, vos_path(cmd_file_dest))
         run_config['command'] = cmd_file_dest
+    logger.info(f'Copying command filesto VO space')
+
+    # NOTE: VO space sofia output directories need to exist.
 
     # Run all tasks concurrently
-    results = []
+    # NOTE: logging is pretty bad should fix
+    futures = []
     logger.info('Submitting tasks')
     with ProcessPoolExecutor(max_workers=4) as executor:
         for run_id, run_config in run_dict.items():
@@ -117,13 +117,20 @@ def main():
                 'cmd': '/bin/bash', 'args': run_config['command'],
                 'env': {}
             }
-            executor.submit(submit_job, params, logger, 1)
+            future = executor.submit(submit_job, params, logger, 1)
+            futures.append(future)
+    for future in futures:
+        logger.info(future.result())
 
-    # # Fetch log file
-    # logger.info('Downloading profile log file')
-    # profile_log = config['profile_log']
-    # dest_log_file = os.path.join(vos_dir, profile_log)
-    # client.copy(vos_path(dest_log_file), profile_log)
+    # Fetch log files
+    if not os.path.exists(config["logs_dir"]):
+        os.makedirs(config["logs_dir"], exist_ok=True)
+
+    for run_id, run_config in run_dict.items():
+        log_file_dest = run_config['profile_log']
+        log_filename = os.path.basename(log_file_dest)
+        client.copy(vos_path(log_file_dest), os.path.join(config['logs_dir'], log_filename))
+    logger.info('Copied log files from VO space')
     logger.info('Done')
     return
 

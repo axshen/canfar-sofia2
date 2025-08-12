@@ -78,7 +78,7 @@ def main():
     sofia_cmd = f'sofia {params_file_dest} input.data={image_file_dest} output.directory={vos_dir}'
     with open(cmd_file, 'w') as f:
         f.write('#!/bin/bash\n')
-        f.write(f'psrecord "{sofia_cmd}" --log {profile_log} --include-io --interval 0.1 --include-children\n')
+        f.write(f'psrecord "{sofia_cmd}" --log {profile_log} --include-io --interval 0.1 --include-children --log-format csv\n')
     cmd_file_dest = os.path.join(vos_dir, cmd_file)
     client.copy(cmd_file, vos_path(cmd_file_dest))
     logger.info(f'SoFiA-2 run script copied to {cmd_file_dest}')
