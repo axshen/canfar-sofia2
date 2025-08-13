@@ -3,7 +3,7 @@ import json
 import time
 import logging
 import requests
-
+from prefect import flow, task
 
 CADC_CERTIFICATE = os.getenv('CADC_CERTIFICATE', f'{os.getenv("HOME")}/.ssl/cadcproxy.pem')
 CANFAR_IMAGE_URL = 'https://ws-uv.canfar.net/skaha/v0/image'
@@ -13,7 +13,7 @@ COMPLETE_STATES = ['Succeeded']
 FAILED_STATES = ['Failed']
 SOFIA_TASK_IMAGE = 'images.canfar.net/srcnet/sofia-task:latest'
 
-
+@flow(name="SoFiA-2 Task Submission")
 def submit_job(params, logger=None, interval=10):
     """Job wrapper for CANFAR containers. Blocks program until the completion of the headless
     container. Logs container stdout to terminal.
@@ -60,6 +60,7 @@ def canfar_get_images(type='headless'):
     return json.loads(r.text)
 
 
+@task
 def create_canfar_session(params, logger):
     r = requests.post(CANFAR_SESSION_URL, data=params, cert=CADC_CERTIFICATE)
     if r.status_code != 200:
