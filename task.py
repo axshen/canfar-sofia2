@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 from configparser import ConfigParser
-from prefect import task
+from prefect import flow, task
 from vos import Client
 from utils import *
 
