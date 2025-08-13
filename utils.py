@@ -21,7 +21,7 @@ def submit_job(params, logger=None, interval=10):
 
     """
     completed = False
-    session_id = create_canfar_session(params, logger).strip('\n')
+    session_id = create_canfar_session(params)
     logger.info(f'Session: {session_id}')
     while not completed:
         res = info_canfar_session(session_id)
