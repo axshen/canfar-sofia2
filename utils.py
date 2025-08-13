@@ -61,7 +61,7 @@ def canfar_get_images(type='headless'):
     return json.loads(r.text)
 
 
-def create_canfar_session(params, logger):
+def create_canfar_session(params):
     session = Session()
     session_ids = session.create(
         name=params.get('name'),
