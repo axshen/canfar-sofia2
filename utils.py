@@ -73,8 +73,6 @@ def create_canfar_session(params, logger):
         env=params.get('env', {}),
         args=params.get('args', []),
     )
-    if session_ids is None or len(session_ids) == 0:
-        raise Exception(f'Request failed {r.content}')
     return session_ids[0]
 
 
