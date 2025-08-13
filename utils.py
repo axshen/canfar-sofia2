@@ -8,7 +8,6 @@ from skaha.session import Session
 
 CADC_CERTIFICATE = os.getenv('CADC_CERTIFICATE', f'{os.getenv("HOME")}/.ssl/cadcproxy.pem')
 CANFAR_IMAGE_URL = 'https://ws-uv.canfar.net/skaha/v0/image'
-CANFAR_SESSION_URL = 'https://ws-uv.canfar.net/skaha/v0/session'
 RUNNING_STATES = ['Pending', 'Running', 'Terminating']
 COMPLETE_STATES = ['Succeeded']
 FAILED_STATES = ['Failed']
