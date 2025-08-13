@@ -3,11 +3,11 @@ import json
 import time
 import logging
 import requests
+from skaha.session import Session
 
 
 CADC_CERTIFICATE = os.getenv('CADC_CERTIFICATE', f'{os.getenv("HOME")}/.ssl/cadcproxy.pem')
 CANFAR_IMAGE_URL = 'https://ws-uv.canfar.net/skaha/v0/image'
-CANFAR_SESSION_URL = 'https://ws-uv.canfar.net/skaha/v0/session'
 RUNNING_STATES = ['Pending', 'Running', 'Terminating']
 COMPLETE_STATES = ['Succeeded']
 FAILED_STATES = ['Failed']
@@ -20,12 +20,12 @@ def submit_job(params, logger=None, interval=10):
 
     """
     completed = False
-    session_id = create_canfar_session(params, logger).strip('\n')
+    session_id = create_canfar_session(params)
     logger.info(f'Session: {session_id}')
     while not completed:
-        res = info_canfar_session(session_id, logger, logs=False)
+        res = info_canfar_session(session_id)
         try:
-            status = json.loads(res.text)['status']
+            status = res['status']
         except Exception as e:
             logger.exception(e)
             continue
@@ -33,7 +33,7 @@ def submit_job(params, logger=None, interval=10):
         completed = status in COMPLETE_STATES
         failed = status in FAILED_STATES
         if failed:
-            logs = info_canfar_session(session_id, logger, logs=True)
+            logs = get_logs_canfar_session(session_id)
             logger.error(logs.content)
             raise Exception(f'Job failed {logs.text}')
 
@@ -41,8 +41,8 @@ def submit_job(params, logger=None, interval=10):
         logger.info(f'Job {session_id} {status}')
 
     # Logging to stdout
-    res = info_canfar_session(session_id, logger, logs=True)
-    logger.info(res.text)
+    res = get_logs_canfar_session(session_id)
+    logger.info(res)
     return
 
 
@@ -60,20 +60,26 @@ def canfar_get_images(type='headless'):
     return json.loads(r.text)
 
 
-def create_canfar_session(params, logger):
-    r = requests.post(CANFAR_SESSION_URL, data=params, cert=CADC_CERTIFICATE)
-    if r.status_code != 200:
-        logger.error(r.status_code)
-        raise Exception(f'Request failed {r.content}')
-    return r.content.decode('utf-8')
+def create_canfar_session(params):
+    session = Session()
+    session_ids = session.create(
+        name=params.get('name'),
+        image=params.get('image'),
+        cores=params.get('cores'),
+        ram=params.get('ram'),
+        kind= params.get('kind', 'headless'),
+        cmd=params.get('cmd', '/bin/bash'),
+        env=params.get('env', {}),
+        args=params.get('args', []),
+    )
+    return session_ids[0]
 
 
-def info_canfar_session(id, logger, logs=False):
-    url = f'{CANFAR_SESSION_URL}/{id}'
-    if logs:
-        url = f'{url}?view=logs'
-    r = requests.get(url, cert=CADC_CERTIFICATE)
-    if r.status_code != 200:
-        logger.error(r.status_code)
-        logger.error(r.content)
-    return r
+def info_canfar_session(id):
+    session = Session()
+    return session.info(id)[0]
+
+def get_logs_canfar_session(id):
+    session = Session()
+    logs = session.logs(id)[id]
+    return logs
